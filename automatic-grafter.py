@@ -1,20 +1,23 @@
 from iota import Iota
 import sys
+import os
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 counter = 0
-seeds = [line.rstrip('\n') for line in open('/Users/haos/PycharmProjects/SeedGrafter/seeds/in-progress/some-working-seeds-to-test')]
-for seed in seeds:
-    if (counter % 100) == 0:
-        print("Seed No.: ", counter)
+while counter is not 2147483647:
+
+    seed = os.popen('/usr/local/microsoft/powershell/6.0.0-rc.2/pwsh '
+                    '/Users/haos/PycharmProjects/SeedGrafter/seeds/seed_generator/specific_seed.ps1 ' + str(
+                     counter)).read()[:-1]
+    log_string = 'Seed No.: ' + str(counter) + '  -  Seed: ' + str(seed)
     counter = counter + 1
-    print('Seed No.: ' + str(counter) + '  -  Seed: ' + str(seed))
     api = Iota('http://5.9.149.169:14265', seed)
     api_response = api.get_account_data(stop=1)
     if api_response['balance'] is not 0 or len(api_response['bundles']) is not 0:
-        print('is working')
-        textFile = open('/Users/haos/PycharmProjects/SeedGrafter/seeds/working_seeds/seeds-1', 'a')
+        log_string = log_string + ' <-- is working'
+        textFile = open('/Users/haos/PycharmProjects/SeedGrafter/seeds/working_seeds/bottom_up', 'a')
         textFile.write('Seed: ' + str(seed) + '\n')
         textFile.write('Balance: ' + str(api_response['balance']) + '\n')
         textFile.write('Addresses: ' + str(api_response['addresses']) + '\n')
@@ -22,3 +25,4 @@ for seed in seeds:
         textFile.write('\n')
         textFile.write('\n')
         textFile.close()
+    print(log_string)
